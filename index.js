@@ -5,7 +5,7 @@ const spawnSync = require('child_process').spawnSync;
 
 function run(command) {
   console.log(command);
-  execSync(command, {stdio: 'inherit'});
+  execSync(command, { stdio: 'inherit' });
 }
 
 function runSafe() {
@@ -13,7 +13,7 @@ function runSafe() {
   console.log(args.join(' '));
   const command = args.shift();
   // spawn is safer and more lightweight than exec
-  const ret = spawnSync(command, args, {stdio: 'inherit'});
+  const ret = spawnSync(command, args, { stdio: 'inherit' });
   if (ret.status !== 0) {
     throw ret.error;
   }
@@ -118,9 +118,13 @@ if (isMac()) {
   }
 
   if (postgresVersion != 14) {
-    // remove previous cluster so port 5432 is used
-    run(`sudo pg_dropcluster 14 main`);
 
+    // remove previous cluster so port 5432 is used
+    try {
+      run(`sudo pg_dropcluster 14 main`);
+    } catch (error) {
+      // ignore error
+    }
     // install new version
     run(`sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/pgdg.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"`);
     run(`sudo apt-get install postgresql-${postgresVersion}`);
